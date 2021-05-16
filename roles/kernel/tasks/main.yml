@@ -1,0 +1,46 @@
+---
+- name: 添加kernel源
+  yum_repository:
+    name: "{{ kernel_version }}"
+    description: 升级新版内核
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/elrepo/kernel/el7/x86_64/
+    enabled: yes
+    gpgcheck: 0
+
+- name: 卸载旧版内核相关组件
+  yum:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - kernel-tools
+    - kernel-headers
+    - kernel-tools-libs
+
+- name: 安装新版本内核及组件
+  yum:
+    update_cache: yes
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ kernel_version }}"
+    - "{{ kernel_version }}-devel"
+    - "{{ kernel_version }}-headers"
+    - "{{ kernel_version }}-tools"
+    - "{{ kernel_version }}-tools-libs"
+    - "{{ kernel_version }}-tools-libs-devel"
+
+- name: 设置更新内核启动顺序
+  lineinfile:
+    path: /etc/default/grub
+    regex: '^GRUB_DEFAULT=.*'
+    line: 'GRUB_DEFAULT=0'
+
+- name: 更新内核启动顺序    
+  shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
+
+- name: 重启服务器
+# 参考 https://www.onitroad.com/jc/ya/ansible/ansible-reboot-linux-machine-or-server-with-playbooks.html
+  reboot:
+    test_command: uptime
+    reboot_timeout: 600
+

@@ -1,0 +1,21 @@
+---
+- name: 设置主机名
+  hostname: "name={{host_name}}"
+
+- name: 备份/etc/hosts
+  shell: "mv /etc/hosts{,.bak}"
+
+- name: 替换/etc/hosts
+  copy: 
+    src: hosts
+    dest: /etc/hosts
+    force: yes
+    mode: 0644
+
+- name: 加锁/etc/hosts
+# 阿里云服务器默认通过DHCP获取IP,服务器重启之后会修改/etc/hosts /etc/resolv.conf文件导致配置不符合预期
+  shell: "chattr +i /etc/hosts"
+
+
+
+

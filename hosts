@@ -1,0 +1,24 @@
+[first_master]
+192.168.8.151 host_name=master001 etcd_name=etcd01
+
+[init_master]
+192.168.8.152 host_name=master002 etcd_name=etcd02
+192.168.8.153 host_name=master003 etcd_name=etcd03
+
+[new_master]
+
+[all_master:children]
+first_master
+init_master
+
+[init_worker]
+192.168.8.155 host_name=worker001
+192.168.8.156 host_name=worker002
+192.168.8.157 host_name=worker003
+
+[new_worker]
+
+
+[init_node:children]
+all_master
+init_worker

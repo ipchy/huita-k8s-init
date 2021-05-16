@@ -1,0 +1,54 @@
+---
+- name: 安装Docker依赖组件
+  yum:
+    name: "{{ item }}" 
+    state: present
+    update_cache: yes
+  loop:
+    - lvm2
+    - yum-utils
+    - device-mapper-persistent-data
+
+- name: 创建Docker数据目录
+  file:
+    path: "{{ docker_data }}"
+    state: directory
+
+- name: 添加Docker源
+  yum_repository:
+    name: docker-ce
+    description: docker-ce官方源
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/7/x86_64/stable/
+    enabled: yes
+    gpgcheck: 0
+    gpgkey: https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/gpg
+
+- name: 安装Docker
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+   - "docker-ce-cli-{{ docker_version }}"
+   - "docker-ce-{{ docker_version }}"
+
+- name: 创建/etc/docker目录
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+
+- name: 配置daemon.json
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    force: yes
+    mode: 0644
+
+- name: 重启Docker
+  systemd:
+    name: docker
+    enabled: true
+    daemon_reload: yes
+    state: restarted
+    

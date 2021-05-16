@@ -1,0 +1,8 @@
+---
+- name: 拷贝worker_join.sh
+  copy:
+    src: fetch_files/worker_join.sh
+    dest: /root/
+
+- name: Worker节点加入集群    
+  shell: "bash /root/worker_join.sh"

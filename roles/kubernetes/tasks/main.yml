@@ -1,0 +1,25 @@
+---
+- name: 添加Kubernetes源
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes官方版本
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/kubernetes/yum/repos/kubernetes-el7-x86_64/
+    enabled: yes
+    gpgcheck: 0
+    gpgkey: https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/gpg
+    
+- name: 安装Kubernetes
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - "kubectl-{{ kubernetes_version }}"
+    - "kubelet-{{ kubernetes_version }}"
+    - "kubeadm-{{ kubernetes_version }}"
+
+- name: 设置kubelet自启动
+  systemd:
+    name: kubelet
+    enabled: true
+

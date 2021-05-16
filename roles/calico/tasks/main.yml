@@ -1,0 +1,10 @@
+---
+- name: 拷贝Calico Yaml文件
+  template:
+    src: calico.yaml.j2
+    dest: /root/calico.yaml
+    mode: 0644
+    force: yes
+    
+- name: 部署Calico
+  shell: "kubectl apply -f /root/calico.yaml"

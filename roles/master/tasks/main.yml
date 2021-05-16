@@ -1,0 +1,20 @@
+---
+- name: 拷贝master_join.sh
+  copy:
+    src: fetch_files/master_join.sh
+    dest: /root/
+
+- name: Master节点加入集群   
+  shell: "bash /root/master_join.sh"
+
+- name: 创建.kube目录
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: 拷贝admin.conf
+  copy:
+    src: fetch_files/admin.conf
+    dest: /root/.kube/config
+    mode: 0600
+    force: yes

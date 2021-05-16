@@ -1,0 +1,38 @@
+[Unit]
+Description=etcd
+After=network.target
+
+[Service]
+Type=notify
+ExecStart={{ etcd_basedir }}/etcd/etcd \
+  --name={{ etcd_name }} \
+  --data-dir={{ etcd_basedir }}/etcd-data \
+  --cert-file={{ etcd_basedir }}/etcd/ssl/etcd.pem \
+  --key-file={{ etcd_basedir }}/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file={{ etcd_basedir }}/etcd/ssl/etcd-ca.pem \
+  --peer-cert-file={{ etcd_basedir }}/etcd/ssl/etcd.pem \
+  --peer-key-file={{ etcd_basedir }}/etcd/ssl/etcd-key.pem \
+  --peer-trusted-ca-file={{ etcd_basedir }}/etcd/ssl/etcd-ca.pem \
+  --peer-client-cert-auth \
+  --client-cert-auth \
+  --listen-peer-urls "https://{{ ansible_default_ipv4.address }}:2380" \
+  --initial-advertise-peer-urls "https://{{ ansible_default_ipv4.address }}:2380" \
+  --listen-client-urls "https://{{ ansible_default_ipv4.address }}:2379,http://localhost:2379" \
+  --advertise-client-urls "https://{{ ansible_default_ipv4.address }}:2379" \
+  --initial-cluster-token=etcd-cluster \
+  --initial-cluster={{ cluster_ips }} \
+  --initial-cluster-state=new \
+  --auto-compaction-mode=periodic \
+  --auto-compaction-retention=1 \
+  --max-request-bytes=33554432 \
+  --quota-backend-bytes=6442450944 \
+  --heartbeat-interval 200 \
+  --election-timeout 2000
+Restart=always
+RestartSec=5
+TimeoutStartSec=0
+StartLimitInterval=0
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

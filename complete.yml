@@ -1,0 +1,19 @@
+---
+- name: 优化集群端口设置
+  hosts: all_master
+  remote_user: root
+  tasks:
+    - name: 设置NodePort端口范围[默认:30000-32767] 
+      lineinfile:
+        dest: /etc/kubernetes/manifests/kube-apiserver.yaml
+        insertafter: '^    - --tls-private-key'
+        line: '    - --service-node-port-range=1-65535'
+    - name: 开启kube-scheduler、kube-controller-manager非安全端口
+      lineinfile:
+        path: "{{ item }}"
+        regex: '^    - --port=0'
+        line: '#    - --port=0'
+      loop:
+        - "/etc/kubernetes/manifests/kube-scheduler.yaml"
+        - "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+  

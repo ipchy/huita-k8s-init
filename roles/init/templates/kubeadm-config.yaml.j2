@@ -1,0 +1,52 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: token0.123456789kubeadm
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ ansible_default_ipv4.address }}
+  bindPort: 6443
+nodeRegistration:
+  criSocket: /var/run/dockershim.sock
+  name: {{ host_name }}
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+---
+apiServer:
+  certSANs:
+  - 127.0.0.1
+  - master001
+  - master002
+  - master003
+  - {{ kube_api_url }}
+  timeoutForControlPlane: 4m0s
+apiVersion: kubeadm.k8s.io/v1beta2
+certificatesDir: "/etc/kubernetes/pki"
+clusterName: kubernetes
+controlPlaneEndpoint: "{{ kube_api_url }}:6443"
+kind: ClusterConfiguration
+networking:
+  serviceSubnet: "{{ svc_cidr }}"
+  podSubnet: "{{ pod_cidr }}"
+  dnsDomain: "{{ dns_domain }}"
+kubernetesVersion: "v{{ kubernetes_version }}"
+imageRepository: "{{ gcr_url }}"
+etcd:
+  external:
+    endpoints:
+    - https://etcd01:2379
+    - https://etcd02:2379
+    - https://etcd03:2379
+    certFile: {{ etcd_basedir }}/etcd/ssl/etcd.pem
+    caFile: {{ etcd_basedir }}/etcd/ssl/etcd-ca.pem
+    keyFile: {{ etcd_basedir }}/etcd/ssl/etcd-key.pem
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: ipvs

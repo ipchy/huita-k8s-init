@@ -1,0 +1,7 @@
+::1     localhost       localhost.localdomain   localhost6      localhost6.localdomain6
+127.0.0.1       localhost       localhost.localdomain   localhost4      localhost4.localdomain4
+127.0.0.1       Aliyun  Aliyun
+
+192.168.8.151 master001 kube-api.ipchy.net etcd01
+192.168.8.152 master002 kube-api.ipchy.net etcd02
+192.168.8.153 master003 kube-api.ipchy.net etcd03

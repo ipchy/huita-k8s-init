@@ -1,0 +1,64 @@
+---
+- name: Init Cluster Node
+  hosts: init_node 
+  remote_user: root
+  roles:
+    - hostname
+    - kernel
+    - basic
+    - docker
+    - kubernetes
+
+
+- name: Download Worker Images
+  hosts: init_node
+  remote_user: root
+  roles:
+    - image
+
+
+- name: Init Etcd Cluster
+  hosts: all_master
+  remote_user: root
+  roles:
+    - etcd
+
+- name: Download Master Images
+  hosts: all_master
+  remote_user: root
+  roles:
+    - masterImage
+
+
+- name: Init Kubernetes Cluster
+  hosts: first_master
+  remote_user: root
+  roles:
+    - init
+
+
+- name: Join Master Node
+  hosts: init_master
+  remote_user: root
+  roles:
+    - master
+
+
+- name: Join Worker Node
+  hosts: init_worker
+  remote_user: root
+  roles:
+    - worker
+
+- name: Deploy    Calico NIC
+  hosts: first_master
+  remote_user: root
+  roles:
+    - calico
+
+
+- name: 部署 Metrics
+  hosts: first_master
+  remote_user: root
+  roles:
+    - metrics

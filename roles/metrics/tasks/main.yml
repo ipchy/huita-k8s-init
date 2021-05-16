@@ -1,0 +1,11 @@
+---
+- name: 拷贝Metrics Yaml文件
+  template:
+    src: metrics-components.yaml.j2
+    dest: /root/metrics-components.yaml
+    force: yes
+  tags: metrics
+
+- name: 部署Metrics
+  shell: "kubectl apply -f /root/metrics-components.yaml"
+  tags: metrics

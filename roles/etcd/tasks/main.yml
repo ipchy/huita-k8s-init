@@ -1,0 +1,39 @@
+---
+- name: 解压etcd二进制包
+  unarchive:
+    src: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: "{{ etcd_basedir }}"
+
+- name: 修改解压缩包名称
+  shell: "mv {{ etcd_basedir }}/etcd-v{{ etcd_version }}-linux-amd64 {{ etcd_basedir }}/etcd"
+
+- name: 创建SSL证书目录
+  file:
+    path: "{{ etcd_basedir }}/etcd/ssl"
+    state: directory
+
+- name: 拷贝SSL文件
+  copy:
+    src: "{{ item[0] }}" 
+    dest: "{{ item[1] }}"
+    mode: "{{ item[2] }}"
+    force: yes
+  loop:
+    - ["etcd.pem","{{ etcd_basedir }}/etcd/ssl/etcd.pem","0644"]
+    - ["etcd-ca.pem","{{ etcd_basedir }}/etcd/ssl/etcd-ca.pem","0644"]
+    - ["etcd-key.pem","{{ etcd_basedir }}/etcd/ssl/etcd-key.pem","0600"]
+
+- name: 复制启动文件
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    mode: 0644
+    force: yes
+
+- name: 启动etcd
+  systemd:
+    name: etcd
+    state: started
+    daemon-reload: yes
+    enabled: yes
+

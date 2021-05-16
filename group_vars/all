@@ -1,0 +1,55 @@
+# 数据盘
+data_disk: /dev/vdb
+data_path: /opt
+
+# 需要升级内核的版本
+# kernel-lt: LTS版本
+# kernel-ml: 主线版本
+kernel_version: kernel-lt
+
+# Docker版本
+docker_version: 19.03.14
+# Docker数据目录,默认/var/lib/docker
+docker_data: "{{ data_path }}/docker"
+# 镜像加速
+registry_mirrors: '["https://w8vo12lt.mirror.aliyuncs.com"]'
+
+# Kubernetes版本
+kubernetes_version: 1.20.7
+
+# Etcd版本
+etcd_version: 3.4.16
+# Etcd安装目录
+etcd_basedir: "{{ data_path }}"
+# Etcd集群组
+cluster_ips: "etcd01=https://etcd01:2380,etcd02=https://etcd02:2380,etcd03=https://etcd03:2380"
+# Etcd证书包含的host
+etcd_host: "127.0.0.1,etcd01,etcd02,etcd03,*.k8s.ipchy.net,*.ipchy.net"
+
+# Apiserver地址
+kube_api_url: kube-api.ipchy.net
+# SVC网段
+svc_cidr: 10.46.0.0/16
+# POD网段
+pod_cidr: 10.47.0.0/16
+# Cluster搜索域
+dns_domain: k8s.ipchy.net
+# GCR域名
+gcr_url: k8s.gcr.io
+# Docker域名
+docker_url: docker.io
+# Ucloud中转仓库地址
+ucloud_url: uhub.service.ucloud.cn/huita
+
+# CoreDNS版本
+coredns_version: 1.7.0
+# Pause版本
+pause_version: 3.2
+
+# Calico版本
+calico_version: 3.19.0
+calico_controllers_replicas: 1
+
+# Metrics Server版本
+metrics_version: 0.4.4
+metrics_server_replicas: 1

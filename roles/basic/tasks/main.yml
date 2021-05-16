@@ -1,0 +1,85 @@
+---
+- name: 更新系统软件
+  yum:
+    name: "*"
+    state: latest
+    
+- name: 安装基础依赖
+  yum: 
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - git
+    - vim
+    - curl
+    - wget
+    - unzip
+    - ipset
+    - socat
+    - telnet
+    - ntpdate
+    - ipvsadm
+    - sysstat
+    - ethtool
+    - ebtables
+    - conntrack
+    - net-tools
+    - libseccomp
+    - epel-release
+
+- name: 设置时区
+  file:
+    src: /usr/share/zoneinfo/Asia/Shanghai
+    path: /etc/localtime
+    state: link
+  
+- name: 更新时间  
+  shell: "ntpdate ntp1.aliyun.com"
+
+- name: 关闭防火墙
+  systemd: 
+    name: firewalld
+    state: stopped
+    enabled: false
+
+- name: 禁止SELINUX
+  selinux:
+    state: disabled
+
+- name: 关闭SWAP
+  shell: "swapoff -a && sysctl -w vm.swappiness=0 && sed -i 's/.*swap.*/#&/g' /etc/fstab"
+
+- name: 拷贝配置文件
+  copy:
+    src: "{{ item[0] }}"
+    dest: "{{ item[1] }}"
+    force: yes
+    mode: "{{ item[2] }}"
+  loop:
+    - ["kubernetes.conf","/etc/sysctl.d/kubernetes.conf","0644"]
+    - ["ipvs.modules","/etc/sysconfig/modules/ipvs.modules","0755"]
+
+- name: 加载br_netfilter模块
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: 配置Kubernetes内核参数
+  shell: "sysctl -p /etc/sysctl.d/kubernetes.conf"
+    
+- name: 设置IPVS模块
+  shell: "sh /etc/sysconfig/modules/ipvs.modules && lsmod | grep -e ip_"
+
+- name: 格式化数据盘
+  filesystem:
+    dev: "{{ data_disk }}"
+    fstype: xfs
+    force: yes
+
+- name: 挂载数据盘
+  mount:
+    path: "{{ data_path }}"
+    src: "{{ data_disk }}"
+    fstype: xfs
+    state: mounted

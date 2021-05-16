@@ -1,0 +1,10 @@
+---
+- name: 拉取Kubernetes镜像
+  shell: |
+    docker pull "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+    docker tag "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}" "{{ gcr_url }}/{{ item[0] }}:{{ item[1] }}"
+    docker rmi "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+  loop:
+    - ["kube-controller-manager","v{{ kubernetes_version }}"] 
+    - ["kube-scheduler","v{{ kubernetes_version }}"]
+    - ["kube-apiserver","v{{ kubernetes_version }}"]

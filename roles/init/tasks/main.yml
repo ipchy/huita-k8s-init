@@ -1,0 +1,44 @@
+---
+- name: 初始化kubeadm-config.yaml
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: /root/kubeadm-config.yaml
+    force: yes
+    mode: 0644
+
+- name: 初始化Kubernetes集群
+  shell: "kubeadm init --config=/root/kubeadm-config.yaml --upload-certs >> /root/kubeadm.log"
+
+- name: 创建.kube目录
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: 拷贝join_cluster.sh
+  copy:
+    src: join_cluster.sh
+    dest: /root/
+
+- name : 生成节点加入集群脚本    
+  shell: "bash /root/join_cluster.sh"
+
+- name: 拷贝初始化完成后的文件
+  fetch:
+    src: "{{ item }}"
+    dest: "fetch_files/"
+# 当flat设置为yes的时候,并且操作主机只有一台的时候只会将目标文件拷贝到设置的目录,不会递归拷贝目录
+    flat: yes
+  loop:
+    - "/root/kubeadm.log"
+    - "/root/worker_join.sh"
+    - "/root/master_join.sh"
+    - "/root/kubeadm-config.yaml"
+    - "/etc/kubernetes/admin.conf"
+    - "/etc/kubernetes/pki/ca.crt"
+
+- name: 拷贝admin.conf
+  copy:
+    src: fetch_files/admin.conf
+    dest: /root/.kube/config
+    mode: 0600
+    force: yes

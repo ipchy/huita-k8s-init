@@ -1,0 +1,27 @@
+---
+- name: 拉取Kubernetes镜像
+  shell: |
+    docker pull "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+    docker tag "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}" "{{ gcr_url }}/{{ item[0] }}:{{ item[1] }}"
+    docker rmi "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+  loop:
+    - ["kube-proxy","v{{ kubernetes_version }}"]
+    - ["coredns","{{ coredns_version }}"]
+    - ["pause","{{ pause_version }}"]
+
+- name: 拉取Calico镜像
+  shell: |
+    docker pull "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+    docker tag "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}" "{{ docker_url }}/calico/{{ item[0] }}:{{ item[1] }}"
+    docker rmi "{{ ucloud_url }}/{{ item[0] }}:{{ item[1] }}"
+  loop:
+    - ["cni","v{{ calico_version }}"]
+    - ["node","v{{ calico_version }}"]
+    - ["kube-controllers","v{{ calico_version }}"]
+    - ["pod2daemon-flexvol","v{{ calico_version }}"]
+
+- name: 拉取Metrics镜像
+  shell: |
+      docker pull "{{ ucloud_url }}/metrics-server:{{ metrics_version }}"
+      docker tag "{{ ucloud_url }}/metrics-server:{{ metrics_version }}" "{{ gcr_url }}/metrics-server/metrics-server:{{ metrics_version }}"
+      docker rmi "{{ ucloud_url }}/metrics-server:{{ metrics_version }}"

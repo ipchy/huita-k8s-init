@@ -1,0 +1,14 @@
+---
+- name: 备份/etc/resolv.conf
+  shell: "mv /etc/resolv.conf{,.bak}"
+
+- name: 替换/etc/resolv.conf
+  copy: 
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    force: yes
+    mode: 0644
+
+- name: 加锁/etc/resolv.conf  
+# 阿里云服务器默认通过DHCP获取IP,服务器重启之后会修改/etc/hosts /etc/resolv.conf文件导致配置不符合预期
+  shell: "chattr +i /etc/resolv.conf"
